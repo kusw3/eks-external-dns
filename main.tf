@@ -4,13 +4,17 @@ locals {
   clean_oidc_url = replace(var.eks_cluster_oidc_issuer_url, "https://", "")
 }
 
+resource "random_id" "iam" {
+  byte_length = 4
+}
+
 ###
 # AWS RESOURCES
 ###
 
 # Creation of new role to be used by ExternalDNS pod
 resource "aws_iam_role" "external_dns" {
-  name = "allow_ExternalDNS_updates"
+  name = "allow_ExternalDNS_updates_${random_id.iam.hex}"
 
   assume_role_policy = <<-EOF
     {
@@ -35,7 +39,7 @@ resource "aws_iam_role" "external_dns" {
 
 # Route53 Entry management
 resource "aws_iam_policy" "external_dns" {
-  name        = "AllowExternalDNSUpdates"
+  name        = "AllowExternalDNSUpdates_${random_id.iam.hex}"
   path        = "/"
   description = "Policy to Allow External-DNS K8s controller to manage recordsets"
 
