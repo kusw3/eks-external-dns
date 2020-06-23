@@ -28,7 +28,7 @@ resource "aws_iam_role" "external_dns" {
           "Action": "sts:AssumeRoleWithWebIdentity",
           "Condition": {
             "StringEquals": {
-              "${local.clean_oidc_url}:sub": "system:serviceaccount:kube-system:external-dns"
+              "${local.clean_oidc_url}:sub": "system:serviceaccount:${var.k8s_namespace}:external-dns"
             }
           }
         }
@@ -118,7 +118,7 @@ resource "kubernetes_deployment" "external_dns" {
             "--policy=upsert-only",
             "--aws-zone-type=public",
             "--registry=txt",
-            "--txt-owner-id=eks-external-dns"
+            "--txt-owner-id=eks-external-dns-${random_id.iam.hex}"
           ]
         }
 
